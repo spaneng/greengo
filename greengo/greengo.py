@@ -988,9 +988,13 @@ class GroupCommands(object):
                 policyDocument=policy_doc)
             )
         except ClientError as ce:
-            if ce.response['Error']['Code'] == 'EntityAlreadyExists':
+            if ce.response['Error']['Code'] == 'EntityAlreadyExists' or \
+                ce.response['Error']['Code'] == 'ResourceAlreadyExistsException':
                 log.warning(
                     "Policy '{0}' exists. Using existing Policy".format(policy_name))
+                policy = rinse(self._iot.get_policy(
+                    policyName=policy_name
+                ))
             else:
                 log.error("Unexpected Error: {0}".format(ce))
                 raise
