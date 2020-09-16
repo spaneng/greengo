@@ -762,45 +762,46 @@ class GroupCommands(object):
         devices = []
         initial_version = {'Devices': []}
 
-        for device_description in self.group['Devices']:
-            try:
-                # Create the IOT thing and get the certificates
-                name = device_description['name']
-                log.info("Creating a thing for core {0}".format(name))
-                keys_cert = rinse(self._iot.create_keys_and_certificate(setAsActive=True))
-                device_thing = rinse(self._iot.create_thing(thingName=name))
+        if 'Devices' in self.group:
+            for device_description in self.group['Devices']:
+                try:
+                    # Create the IOT thing and get the certificates
+                    name = device_description['name']
+                    log.info("Creating a thing for core {0}".format(name))
+                    keys_cert = rinse(self._iot.create_keys_and_certificate(setAsActive=True))
+                    device_thing = rinse(self._iot.create_thing(thingName=name))
 
-                # Attach the previously created Certificate to the created Thing
-                self._iot.attach_thing_principal(
-                    thingName=name, principal=keys_cert['certificateArn'])
-                policy = self._create_and_attach_thing_policy(
-                    thing_name=name,
-                    policy_doc=self._create_device_policy(),
-                    thing_cert_arn=keys_cert['certificateArn']
-                )
+                    # Attach the previously created Certificate to the created Thing
+                    self._iot.attach_thing_principal(
+                        thingName=name, principal=keys_cert['certificateArn'])
+                    policy = self._create_and_attach_thing_policy(
+                        thing_name=name,
+                        policy_doc=self._create_device_policy(),
+                        thing_cert_arn=keys_cert['certificateArn']
+                    )
 
-                # Add all of the relevant data to the devices list for the state update
-                devices.append({
-                    'name': name,
-                    'thing': device_thing,
-                    'keys': keys_cert,
-                    'policy': policy
-                })
+                    # Add all of the relevant data to the devices list for the state update
+                    devices.append({
+                        'name': name,
+                        'thing': device_thing,
+                        'keys': keys_cert,
+                        'policy': policy
+                    })
 
-                # Save the details pertaining to the certificate linked with the thing ARN
-                initial_version['Devices'].append({
-                    'Id': name,
-                    'CertificateArn': keys_cert['certificateArn'],
-                    'SyncShadow': device_description['SyncShadow'],
-                    'ThingArn': device_thing['thingArn']
-                })
+                    # Save the details pertaining to the certificate linked with the thing ARN
+                    initial_version['Devices'].append({
+                        'Id': name,
+                        'CertificateArn': keys_cert['certificateArn'],
+                        'SyncShadow': device_description['SyncShadow'],
+                        'ThingArn': device_thing['thingArn']
+                    })
 
-                # Save the certificates in the appropriate location
-                _save_keys(device_description['key_path'], name, keys_cert)
+                    # Save the certificates in the appropriate location
+                    _save_keys(device_description['key_path'], name, keys_cert)
 
-            except Exception as e:
-                log.error("Error creating device {0}: {1}".format(name, str(e)))
-                # Continue with other devices if any
+                except Exception as e:
+                    log.error("Error creating device {0}: {1}".format(name, str(e)))
+                    # Continue with other devices if any
         self.state['Devices'] = devices
         _update_state(self.state)
         log.debug("Creating Device definition with InitialVersion={0}".format(
