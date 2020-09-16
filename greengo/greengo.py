@@ -339,7 +339,7 @@ class GroupCommands(object):
                         with open(zf, 'rb') as f:
                             lr = self._lambda.create_function(
                                 FunctionName=l['name'],
-                                Runtime='python2.7', # need to eventually change the default to python3 eventually since python 2.7 support ends soon
+                                Runtime='python3.7', # need to eventually change the default to python3 eventually since python 2.7 support ends soon
                                 Role=role_arn,
                                 Handler=l['handler'],
                                 Code=dict(ZipFile=f.read()),
