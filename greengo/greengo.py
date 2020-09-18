@@ -23,7 +23,7 @@ MAGIC_DIR = '.gg'
 STATE_FILE = os.path.join(MAGIC_DIR, 'gg_state.json')
 ROOT_CA_URL = "https://www.amazontrust.com/repository/AmazonRootCA1.pem"
 
-DEPLOY_TIMEOUT = 150  # Timeout, seconds
+DEPLOY_TIMEOUT = 210  # Timeout, seconds
 
 class GroupCommands(object):
     def __init__(self, config_file=DEFINITION_FILE, bulk=False):
